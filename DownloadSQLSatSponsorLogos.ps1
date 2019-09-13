@@ -16,9 +16,6 @@
 # You may republish altered code as long as you give due credit.
 ##########################################################################################
 
-#text format 
-#Speaker [name] presents [title] [SessionURL} /cc [twitter handle] #sqlsat403
-
 $eventNum = "883"
 $outputfolder = "c:\temp\SponsorLogos"
 $compress = $True
