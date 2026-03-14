@@ -1,15 +1,15 @@
 # Define the directory containing the CSV files
-$csvFolder = "/Users/folder1/folder2/folder3/"
+$csvFolder = "/Users/john/Library/CloudStorage/OneDrive-DennyCherry&AssociatesConsulting/Hexagon/DiagnosticQueries/DiagnosticQueries-empty/DiagnosticQueries/"
 
 # Import the ImportExcel module (if not already imported)
 Import-Module ImportExcel
 
 # Get all the CSV files from the source folder, select the name, fullname, basename, and then add an order column and sort by it
-$csvFiles = get-childitem $csvFolder -Filter "*blah-blah*.csv" | select-object name, fullname, basename, @{l='order';e={[int]$_.name.split('-')[4]}} | sort-object order 
+$csvFiles = get-childitem $csvFolder -Filter "*.csv" | select-object name, fullname, basename, @{l='order';e={[int]$_.name.split('-')[4]}} | sort-object order 
 
 # Define exportexcel parameters. Note- MoveToEnd switch & others will affect outcome ie: could produce an error. 
 $ExportExcelParams = @{
-    Path =  '/Users/folder1/folder2/folder3/SomeFileNameHere.xlsx' 
+    Path =  '/Users/john/Desktop/Hexagon/empty.xlsx' 
     AutoFilter =  $true
     #MoveToEnd =  $true
     FreezeTopRow = $true
@@ -21,8 +21,17 @@ foreach ($csvFile in $csvFiles) {
     $csvData = Import-Csv -Path $csvFile.FullName
 
     # Generate the worksheet name based on the elements in the file name
-    $sheetName = ($csvFile.BaseName -split "-")[4,5] -join "-"  # Use the file name (without extension) as the sheet name
-    
+    $sheetName = ($csvFile.BaseName -split "-") #[16,17] -join "-"  # Use the file name (without extension) as the sheet name
+    $indexofDQ = $sheetName.IndexOf("DQ")
+    $sheetName = $sheetName[$indexofDQ+1], $sheetName[$indexofDQ+2] -join "-"
+    write-host  $sheetName
+
+    # write host name
+    Write-Host "Processing file: $($csvFile.Name) with sheet name: $sheetName"
+    # Ensure the worksheet name is not longer than 31 characters
+    if ($sheetName.Length -gt 30) {
+        $sheetName = $sheetName.Substring(0, 30)
+    }
     # Send the CSV data to export-excel and create the new worksheet.  Also, worksheet names longer than 31 characters could throw an error
     $csvData | Export-Excel @ExportExcelParams -WorksheetName $sheetname 
     
